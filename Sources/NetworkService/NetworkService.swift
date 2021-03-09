@@ -9,8 +9,8 @@ import Foundation
 
 class NetworkService {
 
-    var session = URLSession.shared
-    var validator = HTTPResponseValidator()
+    let session = URLSession.shared
+    let validator = HTTPResponseValidator()
 
     var headers: [String: String]
 
@@ -27,6 +27,10 @@ class NetworkService {
         let request = getRequest(basedOn: resource)
 
         let task = session.dataTask(with: request) { [weak self] data, res, err in
+            guard err == nil else {
+                completion(.failure(.unknownError(err!)))
+                return
+            }
 
             guard let self = self else {
                 return
@@ -37,6 +41,7 @@ class NetworkService {
             }
 
             guard self.validator.validate(res) else {
+                print("error", res.statusCode)
                 completion(.failure(.responseError(res.statusCode)))
                 return
             }
@@ -57,9 +62,9 @@ class NetworkService {
     }
 }
 
-private extension NetworkService {
-
-    func getRequest<T: Decodable>(basedOn resource: Resource<T>) -> URLRequest {
+extension NetworkService {
+    // for testing purposes was left non-private
+    public func getRequest<T: Decodable>(basedOn resource: Resource<T>) -> URLRequest {
         var request = URLRequest(url: resource.url)
 
         if let headers = resource.headers {
@@ -72,6 +77,4 @@ private extension NetworkService {
 
         return request
     }
-
 }
-

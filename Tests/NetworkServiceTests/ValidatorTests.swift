@@ -31,4 +31,6 @@ final class ValidatorTests: XCTestCase {
         XCTAssertTrue(validator.validate(goodResponse))
         XCTAssertFalse(validator.validate(badResponse))
     }
+
+
 }
